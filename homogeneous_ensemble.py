@@ -36,17 +36,15 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import mean_squared_error
 from sklearn.neighbors import KNeighborsClassifier
 
-
+def split_train_test(data, test_ratio):
+    shuffled_indices = np.random.permutation(len(data))
+    test_set_size = int(len(data) * test_ratio)
+    test_indices = shuffled_indices[:test_set_size]
+    train_indices = shuffled_indices[test_set_size:]
+    return data.iloc[train_indices], data.iloc[test_indices]
 
 def homog_ens(data, algorithm, number_of_preds):
     
-    def split_train_test(data, test_ratio):
-        shuffled_indices = np.random.permutation(len(data))
-        test_set_size = int(len(data) * test_ratio)
-        test_indices = shuffled_indices[:test_set_size]
-        train_indices = shuffled_indices[test_set_size:]
-        return data.iloc[train_indices], data.iloc[test_indices]
-
     #  Classifiers available to the ensemble
     predictors = [DecisionTreeClassifier(max_depth=5),
                   SVR(kernel="rbf", C=10000, tol=1e-5),
@@ -63,10 +61,9 @@ def homog_ens(data, algorithm, number_of_preds):
         Y = X_labels.to_numpy()
         X = X_vars.to_numpy()
         #  Model training
-        weak_lin_reg = predictors[algorithm]      #<-------------------------------------------------------  Change number to desired option from above.  Set to i for hetero. ens.
-                                                                                                #    If i is constant, ensemble is homogeneous.
+        weak_lin_reg = predictors[algorithm]
         weak_lin_reg.fit(X, Y)
         weak_preds.append(weak_lin_reg)
         weights.append(1 / mean_squared_error(weak_lin_reg.predict(test_set.iloc[:,1:-1].to_numpy()), 
                                               test_set.iloc[:,-1].to_numpy()))
-    return weights
+    return weights, weak_preds
