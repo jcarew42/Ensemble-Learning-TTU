@@ -46,9 +46,9 @@ def split_train_test(data, test_ratio):
 def homog_ens(data, algorithm, number_of_preds):
     
     #  Classifiers available to the ensemble
-    predictors = [DecisionTreeClassifier(max_depth=5),
-                  SVR(kernel="rbf"),#SVR(kernel="rbf", C=10000, tol=1e-5),
-                  KNeighborsClassifier(n_neighbors=random.randint(1,25))]    
+    # predictors = [DecisionTreeClassifier(max_depth=5),
+    #               SVR(kernel="rbf"),#SVR(kernel="rbf", C=10000, tol=1e-5),
+    #               KNeighborsClassifier(n_neighbors=random.randint(1,25))]    
 
     weak_preds = []
     weights = []
@@ -63,9 +63,45 @@ def homog_ens(data, algorithm, number_of_preds):
         X = X_vars.to_numpy()
         
         #  Model training
-        weak_lin_reg = predictors[algorithm]
-        weak_lin_reg.fit(X, Y)
-        weak_preds.append(weak_lin_reg)
-        weights.append(1 / mean_squared_error(weak_lin_reg.predict(test_set.iloc[:,:-1].to_numpy()), 
+        # weak_lin_reg = predictors[algorithm]
+        # weak_lin_reg.fit(X, Y)
+        # weak_preds.append(weak_lin_reg)
+        # weights.append(1 / mean_squared_error(weak_lin_reg.predict(test_set.iloc[:,:-1].to_numpy()), 
+        #                                       test_set.iloc[:,-1].to_numpy()))
+        
+        #  Modified training
+        
+        predictors = [DecisionTreeClassifier(max_depth=5),
+                      SVR(kernel="rbf"),#SVR(kernel="rbf", C=10000, tol=1e-5),
+                      KNeighborsClassifier(n_neighbors=random.randint(1,25))]
+        
+        weak_preds.append(predictors[algorithm])
+        weak_preds[-1].fit(X, Y)
+        weights.append(1 / mean_squared_error(weak_preds[-1].predict(test_set.iloc[:,:-1].to_numpy()), 
                                               test_set.iloc[:,-1].to_numpy()))
+        
+        
     return weights, weak_preds
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
