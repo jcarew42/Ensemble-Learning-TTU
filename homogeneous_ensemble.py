@@ -71,7 +71,7 @@ def homog_ens(data, algorithm, number_of_preds):
         
         #  Modified training
         
-        predictors = [DecisionTreeClassifier(max_depth=5),
+        predictors = [DecisionTreeClassifier(max_depth=5, splitter="best"),
                       SVR(kernel="rbf"),#SVR(kernel="rbf", C=10000, tol=1e-5),
                       KNeighborsClassifier(n_neighbors=random.randint(1,25))]
         
